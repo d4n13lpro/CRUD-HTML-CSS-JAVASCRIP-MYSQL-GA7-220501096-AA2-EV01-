@@ -130,8 +130,8 @@ function loadHTMLTable(data) {
       tableHtml += `<td>${id}</td>`;
       tableHtml += `<td>${name}</td>`;
       tableHtml += `<td>${new Date(date_added).toLocaleString()}</td>`;
-      tableHtml += `<td><button class="delete-row-btn" data-id=${id}>Delete</td>`;
-      tableHtml += `<td><button class="edit-row-btn" data-id=${id}>Edit</td>`;
+      tableHtml += `<td><button class="delete-row-btn" data-id=${id}>Eliminar</td>`;
+      tableHtml += `<td><button class="edit-row-btn" data-id=${id}>Editar</td>`;
       tableHtml += "</tr>";
   });
 
