@@ -1,3 +1,15 @@
+### Antes de Iniciar se deben instalar las de pendencias de node.js
+### En la carpeta server ejecutar 
+#### npm init -y
+#### npm install express mysql dotenv cors
+#### npm install nodemon --save-dev dotenv
+### En el archivo .env ingresar los datos: port,user,password,database,bd_port,host
+### En el archivo package.json en la seccion de scripts adicionar "start":"nodemon app.js"
+### En la carpeta server  abrir la consola y ejecutar: npm start  // para que inicie el servidor
+### Recordar que se debe crear la base de datos en mysql
+### Comprobar la conexion
+
+
 ### 2.3 Aplicación
 
 #### 2.3.1 Estructura de Archivos
