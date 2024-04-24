@@ -1,58 +1,122 @@
-// Importar el módulo 'mysql' para interactuar con la base de datos MySQL
 const mysql = require('mysql');
-// Importar el módulo 'dotenv' para cargar variables de entorno desde un archivo .env
 const dotenv = require('dotenv');
-// Crear una instancia de la clase 'DbService' como una variable global para implementar el patrón Singleton
 let instance = null;
-// Configurar dotenv para cargar las variables de entorno
 dotenv.config();
 
-// Crear una conexión a la base de datos MySQL utilizando los valores de las variables de entorno
 const connection = mysql.createConnection({
-    host: process.env.HOST, // Host de la base de datos
-    user: process.env.USER, // Usuario de la base de datos
-    password: process.env.PASSWORD, // Contraseña de la base de datos
-    database: process.env.DATABASE, // Nombre de la base de datos
-    port: process.env.DB_PORT // Puerto de la base de datos
+    host: process.env.HOST,
+    user: process.env.USER,
+    password: process.env.PASSWORD,
+    database: process.env.DATABASE,
+    port: process.env.DB_PORT
 });
 
-// Conectar a la base de datos y manejar cualquier error que pueda ocurrir durante la conexión
 connection.connect((err) => {
     if (err) {
-        console.log(err.message); // Imprimir el mensaje de error en la consola si la conexión falla
+        console.log(err.message);
     }
-    // console.log('db ' + connection.state); // (Opcional) Imprimir el estado de la conexión en la consola
+    // console.log('db ' + connection.state);
 });
 
-// Definir la clase 'DbService' para manejar las operaciones de la base de datos
+
 class DbService {
-    // Método estático para obtener una única instancia del servicio de base de datos utilizando el patrón Singleton
     static getDbServiceInstance() {
-        return instance ? instance : new DbService(); // Devolver la instancia existente o crear una nueva si no existe
+        return instance ? instance : new DbService();
     }
 
-    // Método para obtener todos los datos de la tabla 'names'
     async getAllData() {
         try {
-            // Realizar una consulta SQL para seleccionar todos los registros de la tabla 'names'
             const response = await new Promise((resolve, reject) => {
                 const query = "SELECT * FROM names;";
-                // Ejecutar la consulta y manejar el resultado o cualquier error que pueda ocurrir
+
                 connection.query(query, (err, results) => {
                     if (err) reject(new Error(err.message));
-                    resolve(results); // Resolver la promesa con los resultados de la consulta
-                });
+                    resolve(results);
+                })
             });
-            return response; // Devolver los resultados obtenidos de la consulta
+            // console.log(response);
+            return response;
         } catch (error) {
-            console.log(error); // Manejar cualquier error que pueda ocurrir durante la operación
+            console.log(error);
         }
     }
 
-    // Métodos para insertar, actualizar, eliminar y buscar registros en la tabla 'names'
-    // Implementados de manera similar a getAllData(), con consultas SQL específicas para cada operación
-    // Cada método maneja errores de manera similar y devuelve resultados adecuados
+
+    async insertNewName(name) {
+        try {
+            const dateAdded = new Date();
+            const insertId = await new Promise((resolve, reject) => {
+                const query = "INSERT INTO names (name, date_added) VALUES (?,?);";
+
+                connection.query(query, [name, dateAdded] , (err, result) => {
+                    if (err) reject(new Error(err.message));
+                    resolve(result.insertId);
+                })
+            });
+            return {
+                id : insertId,
+                name : name,
+                dateAdded : dateAdded
+            };
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    async deleteRowById(id) {
+        try {
+            id = parseInt(id, 10); 
+            const response = await new Promise((resolve, reject) => {
+                const query = "DELETE FROM names WHERE id = ?";
+    
+                connection.query(query, [id] , (err, result) => {
+                    if (err) reject(new Error(err.message));
+                    resolve(result.affectedRows);
+                })
+            });
+    
+            return response === 1 ? true : false;
+        } catch (error) {
+            console.log(error);
+            return false;
+        }
+    }
+
+    async updateNameById(id, name) {
+        try {
+            id = parseInt(id, 10); 
+            const response = await new Promise((resolve, reject) => {
+                const query = "UPDATE names SET name = ? WHERE id = ?";
+    
+                connection.query(query, [name, id] , (err, result) => {
+                    if (err) reject(new Error(err.message));
+                    resolve(result.affectedRows);
+                })
+            });
+    
+            return response === 1 ? true : false;
+        } catch (error) {
+            console.log(error);
+            return false;
+        }
+    }
+
+    async searchByName(name) {
+        try {
+            const response = await new Promise((resolve, reject) => {
+                const query = "SELECT * FROM names WHERE name = ?;";
+
+                connection.query(query, [name], (err, results) => {
+                    if (err) reject(new Error(err.message));
+                    resolve(results);
+                })
+            });
+
+            return response;
+        } catch (error) {
+            console.log(error);
+        }
+    }
 }
 
-// Exportar la clase 'DbService' para que esté disponible para otros módulos
 module.exports = DbService;
